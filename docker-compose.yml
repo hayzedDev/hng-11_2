@@ -28,7 +28,8 @@ services:
       - '8002:8000' # Replace with your application's port
     depends_on:
       wait-for-db:
-        condition: service_completed_successfully
+        condition: service_started
+        # condition: service_completed_successfully
     env_file:
       - ./.env
 
