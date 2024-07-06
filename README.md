@@ -18,3 +18,19 @@ To get started with this template, please follow the instructions in the respect
 - [Frontend README](./frontend/README.md)
 - [Backend README](./backend/README.md)
 
+## Base url
+
+- https://hayzeddev.mooo.com/
+
+## Nginx Proxy server login credentials
+
+- url: https://proxy.hayzeddev.mooo.com
+- username: azeezade04@gmail.com
+- password: 12345678
+
+## Adminer login credentials
+
+- url: https://db.hayzeddev.mooo.com/
+- username: app
+- password: changethis123
+- database: app
