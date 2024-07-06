@@ -1,0 +1,65 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - '5173:5173' # Map port 5173 of the container to port 5173 on the host
+
+  postgresdb:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - '5433:5432'
+    # command: ['postgres', '-c', 'listen_addresses=*']
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - '8002:8000' # Replace with your application's port
+    depends_on:
+      wait-for-db:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env
+
+  wait-for-db:
+    image: atkrad/wait4x
+    depends_on:
+      - postgresdb
+    command: postgresql "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresdb:5432/${POSTGRES_DB}?sslmode=disable"
+    # command: postgresql 'postgres://app:changethis123@postgresdb:5432/app?sslmode=disable'
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: postgresdb
+    restart: always
+    ports:
+      - 7777:8080
+
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '8090:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+
+volumes:
+  db-data:
+    driver: local
+# docker-compose down --rmi all
